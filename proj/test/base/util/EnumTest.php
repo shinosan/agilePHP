@@ -4,27 +4,28 @@ require_once BASE::UTIL . 'Enum.php';
 
 class Status extends Enum {
 	const ALL = [
-		[1, 'OK'],
-		[-1, 'NG']
+		'OK' => 1,
+		'WARN' => 0,
+		'NG' => -1
 	];
 	public static Status $OK;
+	public static Status $WARN;
 	public static Status $NG;
 	public static function get(int|string $key): Status {
-		return self::findByIdName(self::$enums, $key);
+		return self::getBase(self::$enums, $key);
 	}
 	public static function all(): array {
 		return self::$enums;
 	}
-	public static function initialize() {
-		self::$enums = self::makeEnum(__CLASS__, self::ALL);
+	public static function init() {
+		self::$enums = self::initBase(__CLASS__, self::ALL);
 	}
 	private static array $enums = [];
 }
-Status::initialize();
+Status::init();
 
 class Prefecture extends Enum {
 	const ALL = [
-		'海外',
 		'北海道',
 		'青森県',
 		'岩手県',
@@ -73,7 +74,6 @@ class Prefecture extends Enum {
 		'鹿児島県',
 		'沖縄県',
 	];
-	public static Prefecture $海外;
 	public static Prefecture $北海道;
 	public static Prefecture $青森県;
 	public static Prefecture $岩手県;
@@ -122,17 +122,17 @@ class Prefecture extends Enum {
 	public static Prefecture $鹿児島県;
 	public static Prefecture $沖縄県;
 	public static function get(int|string $key): Prefecture {
-		return self::findByIdName(self::$enums, $key);
+		return self::getBase(self::$enums, $key);
 	}
 	public static function all(): array {
 		return self::$enums;
 	}
-	public static function initialize() {
-		self::$enums = self::makeEnum(__CLASS__, self::ALL, 1);
+	public static function init() {
+		self::$enums = self::initBase(__CLASS__, self::ALL, 1); // 1起算
 	}
 	private static array $enums = [];
 }
-Prefecture::initialize();
+Prefecture::init();
 
 const LF = "\n";
 function printStatus(Status $status) {
@@ -142,6 +142,7 @@ function printPrefecture(Prefecture $status) {
 	echo $status->id() . ':' . $status->name() . LF;
 }
 printStatus(Status::$OK);
+printStatus(Status::$WARN);
 printStatus(Status::$NG);
 printPrefecture(Prefecture::$北海道);
 printPrefecture(Prefecture::$沖縄県);

@@ -6,6 +6,30 @@ require_once BASE::UTIL . 'ArrayUtil.php';
  * enum 操作ユーティリティ  
  * enum を名前やID(定義順)で取得したり、対応するIDを取得する  
  * 定義したenum毎に派生クラスを作成する
+ * @example /proj/test/base/util/EnumUtilTest.php 下記のように派生クラスを作成
+ * ```php
+ * enum Sex {
+ *     case MALE;
+ *     case FEMALE;
+ * }
+ * class SexUtil extends EnumUtil {
+ *     public static function register(Sex ...$enums) {
+ *         self::registerBase(self::$byIdList, self::$byNameList, ...$enums);
+ *     }
+ *     public static function get(int|string $key): Sex {
+ *         return self::getBase(self::$byIdList, self::$byNameList, $key);
+ *     }
+ *     public static function id(Sex $enum): int {
+ *         return self::idBase(self::$byNameList, $enum);
+ *     }
+ *     public static function getEnums(): array {
+ *         return self::$byIdList;
+ *     }
+ *     private static array $byIdList = [];
+ *     private static array $byNameList = [];
+ * }
+ * SexUtil::register(Sex::MALE, Sex::FEMALE);
+ * ```
  */
 class EnumUtil {
 	/**
