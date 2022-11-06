@@ -2,7 +2,7 @@
 require_once __DIR__ . '/_dir.php';
 require_once BASE::UTIL . 'TypeUtil.php';
 
-use Types as TU;
+use Types as T;
 
 /**
  * 文字列操作ユーティリティ
@@ -171,14 +171,14 @@ class StrUtil {
 		$type = TypeUtil::getType($value);
 		$result = '';
 		switch ($type) {
-			case TU::NULL: // null : 空白文字へ
+			case T::NULL: // null : 空白文字へ
 				$result = '';
 				break;
-			case TU::BOOL:
+			case T::BOOL:
 				$result = $value ? 'true' : 'false';
 				break;
-			case TU::INT:
-			case TU::FLOAT:
+			case T::INT:
+			case T::FLOAT:
 				if ($format == self::COMMA) {
 					$result = number_format($value); // 三桁区切り
 				} else if ($format) {
@@ -187,23 +187,35 @@ class StrUtil {
 					$result = '' . $value;
 				}
 				break;
-			case TU::ARRAY: // 配列
+			case T::ARRAY: // 配列
 				$result = ArrayUtil::toString($value, self::COMMA);
 				break;
-			case TU::ENUM: // 列挙型
-				$result = $value->name;
+			case T::ENUM: // 列挙型
+				$result = self::enum2str($value);
 				break;
-			case TU::DATETIME: // 日時
+			case T::DATETIME: // 日時
 				$result = DateUtil::toString($value);
 				break;
-			case TU::OBJECT: // オブジェクト
+			case T::OBJECT: // オブジェクト
 				$result = get_class($value);
+				break;
+			case T::MODEL: // モデル
+				$array = $value->toArray();
+				$result = ArrayUtil::toString($array, self::COMMA);
 				break;
 			default:
 				$result = $value;
 				break;
 		}
 		return $result;
+	}
+	/**
+	 * 列挙型を'クラス名::名称'に変換する
+	 * @param mixed $value 列挙型
+	 * @return string 変換した文字列
+	 */
+	public static function enum2str(mixed $value): string {
+		return get_class($value) . '::' . $value->name;
 	}
 
 	//// 文字種別変換 ////

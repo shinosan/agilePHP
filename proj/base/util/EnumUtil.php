@@ -12,7 +12,8 @@ require_once BASE::UTIL . 'ArrayUtil.php';
  *     case MALE;
  *     case FEMALE;
  * }
- * class SexUtil extends EnumUtil {
+ * class SexUtil {
+ *     use EnumUtil;
  *     public static function register(Sex ...$enums) {
  *         self::registerBase(self::$byIdList, self::$byNameList, ...$enums);
  *     }
@@ -31,7 +32,7 @@ require_once BASE::UTIL . 'ArrayUtil.php';
  * SexUtil::register(Sex::cases());
  * ```
  */
-class EnumUtil {
+trait EnumUtil {
 	/**
 	 * enumを登録する
 	 * @param array &$byIdList IDでenumを得るための配列

@@ -21,7 +21,9 @@ enum Types {
 /**
  * 型判定ユーティリティ
  */
-class TypeUtil extends EnumUtil {
+class TypeUtil {
+	use EnumUtil;
+
 	/** インスタンス化禁止 */
 	private function __construct() {
 	}
@@ -95,9 +97,11 @@ class TypeUtil extends EnumUtil {
 		}
 	}
 	public static function toEnum(string $val): mixed {
-		list($enum, $case) = explode('::', $val);
-		foreach ($enum::cases() as $enum) {
-			if ($enum->name == $case) return $enum;
+		if (StrUtil::exists($val, '::')) {
+			list($enum, $case) = explode('::', $val);
+			foreach ($enum::cases() as $enum) {
+				if ($enum->name == $case) return $enum;
+			}
 		}
 		return null;
 	}

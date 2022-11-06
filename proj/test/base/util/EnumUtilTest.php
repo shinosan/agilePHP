@@ -3,7 +3,10 @@ require_once __DIR__ . '/_dir.php';
 require_once BASE::UTIL . 'EnumUtil.php';
 require_once BASE::UTIL . 'TypeUtil.php';
 
-class TypesUtil extends EnumUtil {
+class TypesUtil {
+	use EnumUtil;
+	private function __construct() {
+	}
 	public static function register(array $enums) {
 		self::registerBase(self::$byIdList, self::$byNameList, ...$enums);
 	}
@@ -25,7 +28,10 @@ enum Sex {
 	case MALE;
 	case FEMALE;
 }
-class SexUtil extends EnumUtil {
+class SexUtil {
+	use EnumUtil;
+	private function __construct() {
+	}
 	public static function register(array $enums) {
 		self::registerBase(self::$byIdList, self::$byNameList, ...$enums);
 	}

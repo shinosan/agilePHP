@@ -7,30 +7,33 @@ require_once BASE::DBMS . 'Query.php';
 /**
  * DBエラーの列挙体
  */
-enum DbErrors {
+enum DbErrors: int {
 	/** 処理成功  */
-	case SUCCESS;
+	case SUCCESS = 0;
+
+	/** 該当データなし */
+	case NO_DATA = -1;
 
 	/** 接続失敗  */
-	case ERR_CONNECT;
+	case ERR_CONNECT = -101;
 	/** トランザクション開始失敗  */
-	case ERR_BGINTXN;
+	case ERR_BGINTXN = -102;
 	/** SQLの文法エラー  */
-	case ERR_STATEMENT;
+	case ERR_STATEMENT = -103;
 	/** SQLへの値のバインド失敗  */
-	case ERR_BIND;
+	case ERR_BIND = -104;
 	/** SQL文の実行失敗  */
-	case ERR_EXECUTE;
+	case ERR_EXECUTE = -105;
 	/** 結果の取得失敗  */
-	case ERR_FETCH;
+	case ERR_FETCH = -106;
 	/** トランザクション反映の失敗  */
-	case ERR_COMMIT;
+	case ERR_COMMIT = -107;
 	/** トランザクション撤回の失敗  */
-	case ERR_ROLLBACK;
+	case ERR_ROLLBACK = -108;
 	/** 接続断の失敗  */
-	case ERR_CLOSE;
+	case ERR_CLOSE = -109;
 	/** PDO系の失敗  */
-	case ERR_PDO;
+	case ERR_PDO = -110;
 }
 
 /**
@@ -187,9 +190,9 @@ abstract class Dbms {
 	 * @param int $pkey 主キー
 	 * @param bool $lock true:更新用にロックする(省略 = false)
 	 * @param string $pkeyName 主キー名(省略 = 'pkey')
-	 * @return array|int 成功:1件分の連装配列 失敗:エラーコード
+	 * @return array|DbErrors 成功:1件分の連装配列 失敗:DbErrors
 	 */
-	public function get(string $table, int $pkey, array $fieldTypes, bool $lock = false, string $pkeyName = 'pkey'): array|int {
+	public function get(string $table, int $pkey, array $fieldTypes, bool $lock = false, string $pkeyName = 'pkey'): array|DbErrors {
 		$this->start(__METHOD__);
 		// SQL文の構築
 		$query = new Query($table, $fieldTypes, [$pkeyName, Op::EQ, $pkeyName]);
@@ -197,7 +200,7 @@ abstract class Dbms {
 		$sql = $this->makeSelect($query, $params, $lock);
 		// SQL文の実行＆値の取得
 		$ret = $this->executeFetch($sql, PDO::FETCH_ASSOC, $params, $query->fieldTypes);
-		$row = is_array($ret) ? $ret[0] : $ret;
+		$row = is_array($ret) ? $ret[0] : DbErrors::NO_DATA;
 		return $this->end(__METHOD__, $row);
 	}
 
@@ -319,7 +322,7 @@ abstract class Dbms {
 	 * @param string $sql 実行するSQL
 	 * @param array $paramList パラメータ配列
 	 * @param array $types [列名 => 型] の配列
-	 * @param int 処理結果 1:成功 負数:エラーコード
+	 * @param DbErrors 処理結果 1:成功 負数:エラーコード
 	 */
 	protected function execute(string $sql, array $paramList, array $types): DbErrors {
 		$this->start(__METHOD__, $sql);
@@ -353,9 +356,9 @@ abstract class Dbms {
 	 * @param int $fetchType 取得タイプ
 	 * @param ?array $params 検索パラメータ (省略 = null) 
 	 * @param ?array $types データ型配列 (省略 = null)
-	 * @return int|array エラーコード|取得した値の配列
+	 * @return DBErrors|array エラー情報|取得した値の配列
 	 */
-	protected function executeFetch(string $sql, int $fetchType, ?array $params = null, ?array $types = null): int|array {
+	protected function executeFetch(string $sql, int $fetchType, ?array $params = null, ?array $types = null): DBErrors|array {
 		$this->start(__METHOD__, $sql);
 		$result = [];
 		try {
