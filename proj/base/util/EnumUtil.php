@@ -28,7 +28,7 @@ require_once BASE::UTIL . 'ArrayUtil.php';
  *     private static array $byIdList = [];
  *     private static array $byNameList = [];
  * }
- * SexUtil::register(Sex::MALE, Sex::FEMALE);
+ * SexUtil::register(Sex::cases());
  * ```
  */
 class EnumUtil {
@@ -36,7 +36,7 @@ class EnumUtil {
 	 * enumを登録する
 	 * @param array &$byIdList IDでenumを得るための配列
 	 * @param array &$byNameList 名称でenumを得るための配列
-	 * @param mixed ...$enums 登録するenum(可変長)
+	 * @param array $enums 登録するenumのリスト
 	 */
 	protected static function registerBase(array &$byIdList, array &$byNameList, mixed ...$enums) {
 		foreach ($enums as $idx => $enum) {

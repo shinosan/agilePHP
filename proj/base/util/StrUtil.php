@@ -2,7 +2,7 @@
 require_once __DIR__ . '/_dir.php';
 require_once BASE::UTIL . 'TypeUtil.php';
 
-use TypeUtil as TU;
+use Types as TU;
 
 /**
  * 文字列操作ユーティリティ
@@ -189,6 +189,9 @@ class StrUtil {
 				break;
 			case TU::ARRAY: // 配列
 				$result = ArrayUtil::toString($value, self::COMMA);
+				break;
+			case TU::ENUM: // 列挙型
+				$result = $value->name;
 				break;
 			case TU::DATETIME: // 日時
 				$result = DateUtil::toString($value);

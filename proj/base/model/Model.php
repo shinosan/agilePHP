@@ -25,10 +25,10 @@ abstract class Model {
 	const FLD_MODEL_PKEY = 3;
 	const FLD_MODEL_NAME = 4;
 
-	const pkey = ['pkey', '主キー', TypeUtil::INT];
-	const createDate = ['create_date', '作成日', TypeUtil::DATETIME];
-	const updateDate = ['update_date', '更新日', TypeUtil::DATETIME];
-	const deleteFlag = ['delete_flag', '削除フラグ', TypeUtil::BOOL];
+	const pkey = ['pkey', '主キー', Types::INT];
+	const createDate = ['create_date', '作成日', Types::DATETIME];
+	const updateDate = ['update_date', '更新日', Types::DATETIME];
+	const deleteFlag = ['delete_flag', '削除フラグ', Types::BOOL];
 
 	public function clear() {
 		$this->activated = false;
@@ -60,7 +60,7 @@ abstract class Model {
 			if ($org === null) continue;
 
 			$type = $info[self::FLD_DATA_TYPE];
-			if ($type == TypeUtil::MODEL) continue;
+			if ($type == Types::MODEL) continue;
 
 			$value = TypeUtil::convertVal($type, $org);
 			if ($org !== null && $value === null) {
@@ -82,7 +82,7 @@ abstract class Model {
 		foreach ($this->getFields() as $field => $info) {
 			// モデルを保持するフィールドは書き込まない
 			$type = $info[self::FLD_DATA_TYPE];
-			if ($type == TypeUtil::MODEL) continue;
+			if ($type == Types::MODEL) continue;
 
 			// 値の取得
 			$val = $this->getValue($field);

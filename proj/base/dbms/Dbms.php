@@ -5,6 +5,35 @@ require_once BASE::UTIL . 'TypeUtil.php';
 require_once BASE::DBMS . 'Query.php';
 
 /**
+ * DBエラーの列挙体
+ */
+enum DbErrors {
+	/** 処理成功  */
+	case SUCCESS;
+
+	/** 接続失敗  */
+	case ERR_CONNECT;
+	/** トランザクション開始失敗  */
+	case ERR_BGINTXN;
+	/** SQLの文法エラー  */
+	case ERR_STATEMENT;
+	/** SQLへの値のバインド失敗  */
+	case ERR_BIND;
+	/** SQL文の実行失敗  */
+	case ERR_EXECUTE;
+	/** 結果の取得失敗  */
+	case ERR_FETCH;
+	/** トランザクション反映の失敗  */
+	case ERR_COMMIT;
+	/** トランザクション撤回の失敗  */
+	case ERR_ROLLBACK;
+	/** 接続断の失敗  */
+	case ERR_CLOSE;
+	/** PDO系の失敗  */
+	case ERR_PDO;
+}
+
+/**
  * DBMSの抽象基底クラス  
  * 連想配列ベースでデータの読み書き検索を行う
  */
@@ -19,29 +48,11 @@ abstract class Dbms {
 
 	abstract public function className(): string;
 
-	/** @var string const 処理成功  */
-	const SUCCESS = 'SUCCESS';
-
-	/** @var string const 接続失敗  */
-	const ERR_CONNECT = 'ERR_CONNECT';
-	/** @var string const トランザクション開始失敗  */
-	const ERR_BGINTXN = 'ERR_BGINTXN';
-	/** @var string const SQLの文法エラー  */
-	const ERR_STATEMENT = 'ERR_STATEMENT';
-	/** @var string const SQLへの値のバインド失敗  */
-	const ERR_BIND    = 'ERR_BIND';
-	/** @var string const SQL文の実行失敗  */
-	const ERR_EXECUTE = 'ERR_EXECUTE';
-	/** @var string const 結果の取得失敗  */
-	const ERR_FETCH   = 'ERR_FETCH';
-	/** @var string const トランザクション反映の失敗  */
-	const ERR_COMMIT  = 'ERR_COMMIT';
-	/** @var string const トランザクション撤回の失敗  */
-	const ERR_ROLLBACK = 'ERR_ROLLBACK';
-	/** @var string const 接続断の失敗  */
-	const ERR_CLOSE   = 'ERR_CLOSE';
-	/** @var string const PDO系の失敗  */
-	const ERR_PDO     = 'ERR_PDO';
+	/**
+	 * DB接続文字列を返す
+	 * @return string DB接続文字列
+	 */
+	abstract protected function getConnectionString(): string;
 
 	/** @var string const DB設定ファイル  */
 	const CONFIG_FILE = 'dbconfig.ini';
@@ -49,12 +60,6 @@ abstract class Dbms {
 	const USER = 'USER';
 	/** @var string const DBパスワード  */
 	const PASS = 'PASS';
-
-	/**
-	 * DB接続文字列を返す
-	 * @return string DB接続文字列
-	 */
-	abstract protected function getConnectionString(): string;
 
 	/** @var ?PDO DB接続クラス */
 	private static ?PDO $PDO = null;
@@ -64,10 +69,11 @@ abstract class Dbms {
 
 	/**
 	 * DBサーバ接続
+	 * @return DbErrors
 	 */
-	public function connect(): int {
+	public function connect(): DbErrors {
 		$this->start(__METHOD__);
-		$result = self::SUCCESS;
+		$result = DbErrors::SUCCESS;
 		if (!self::$PDO) {
 			try {
 				$str = $this->getConnectionString();
@@ -78,17 +84,18 @@ abstract class Dbms {
 				$this->trace(1, __METHOD__, 'success');
 			} catch (PDOException $e) {
 				$this->error(__METHOD__, $e->getMessage());
-				$result = self::ERR_CONNECT;
+				$result = DbErrors::ERR_CONNECT;
 			}
 		}
 		return $this->end(__METHOD__, $result);
 	}
 	/**
 	 * DBサーバ切断
+	 * @return DbErrors
 	 */
-	public function disconnect(): int {
+	public function disconnect(): DbErrors {
 		$this->start(__METHOD__);
-		$result = self::SUCCESS;
+		$result = DbErrors::SUCCESS;
 		if (self::$PDO) {
 			try {
 				$this->rollback();
@@ -96,7 +103,7 @@ abstract class Dbms {
 				$this->trace(1, __METHOD__, 'done');
 			} catch (PDOException $e) {
 				$this->error(__METHOD__, $e->getMessage());
-				$result = self::ERR_CLOSE;
+				$result = DbErrors::ERR_CLOSE;
 			}
 		}
 		return $this->end(__METHOD__, $result);
@@ -104,47 +111,47 @@ abstract class Dbms {
 
 	/**
 	 * 開始していなければ、トランザクションを開始する。
-	 * @return string SUCCESS:成功, ERR_*:エラー
+	 * @return DbErrors SUCCESS:成功, ERR_*:エラー
 	 */
-	public function beginTransaction(): string {
+	public function beginTransaction(): DbErrors {
 		$this->start(__METHOD__);
-		$result = self::SUCCESS;
+		$result = DbErrors::SUCCESS;
 		if (self::$PDO && self::$transactionBegun++ == 0) {
 			try {
 				self::$PDO->beginTransaction();
 				$this->trace(1, __METHOD__, 'begun', 'realy');
 			} catch (PDOException $e) {
 				$this->error(__METHOD__, $e->getMessage());
-				$result = self::ERR_BGINTXN;
+				$result = DbErrors::ERR_BGINTXN;
 			}
 		}
 		return $this->end(__METHOD__, $result);
 	}
 	/**
 	 * 開始したトランザクションがすべて成功していればコミットする
-	 * @return int 0:成功, <0:エラー
+	 * @return DbErrors
 	 */
-	public function commit(): int {
+	public function commit(): DbErrors {
 		$this->start(__METHOD__);
-		$result = self::SUCCESS;
+		$result = DbErrors::SUCCESS;
 		if (self::$PDO && --self::$transactionBegun == 0) {
 			try {
 				self::$PDO->commit();
 				$this->trace(1, __METHOD__, 'done');
 			} catch (PDOException $e) {
 				$this->error(__METHOD__, $e->getMessage());
-				$result = self::ERR_COMMIT;
+				$result = DbErrors::ERR_COMMIT;
 			}
 		}
 		return $this->end(__METHOD__, $result);
 	}
 	/**
 	 * ロールバックする
-	 * @return int 0:成功, <0:エラー
+	 * @return DbErrors
 	 */
-	public function rollback(): int {
+	public function rollback(): DbErrors {
 		$this->start(__METHOD__);
-		$result = self::SUCCESS;
+		$result = DbErrors::SUCCESS;
 		if (self::$transactionBegun > 0 && self::$PDO) {
 			try {
 				self::$transactionBegun = 0;
@@ -152,7 +159,7 @@ abstract class Dbms {
 				$this->trace(1, __METHOD__, 'done');
 			} catch (PDOException $e) {
 				$this->error(__METHOD__, $e->getMessage());
-				$result = self::ERR_ROLLBACK;
+				$result = DbErrors::ERR_ROLLBACK;
 			}
 		}
 		return $this->end(__METHOD__, $result);
@@ -290,7 +297,7 @@ abstract class Dbms {
 		}
 		$sql = $this->makeDelete($table, $pkeyName);
 		// SQL文の実行
-		$result = $this->execute($sql, $pkeys, [$pkeyName => TypeUtil::INT]);
+		$result = $this->execute($sql, $pkeys, [$pkeyName => Types::INT]);
 		return $this->end(__METHOD__, $result);
 	}
 
@@ -314,28 +321,28 @@ abstract class Dbms {
 	 * @param array $types [列名 => 型] の配列
 	 * @param int 処理結果 1:成功 負数:エラーコード
 	 */
-	protected function execute(string $sql, array $paramList, array $types): int {
+	protected function execute(string $sql, array $paramList, array $types): DbErrors {
 		$this->start(__METHOD__, $sql);
 		$result = 1;
 		try {
 			// SQLステートメント生成
 			$statement = self::$PDO->prepare($sql);
 			if (!$statement) {
-				return $this->error(__METHOD__, self::ERR_STATEMENT, $sql);
+				return $this->error(__METHOD__, DbErrors::ERR_STATEMENT->name, $sql);
 			}
 			// 値のバインドと実行
 			foreach ($paramList as $params) {
 				$ret = $this->bindValue($statement, $params, $types);
 				if (!$ret) {
-					return $this->error(__METHOD__, self::ERR_BIND);
+					return $this->error(__METHOD__, DbErrors::ERR_BIND->name);
 				}
 				$ret = $statement->execute();
 				if (!$ret) {
-					return $this->error(__METHOD__, self::ERR_EXECUTE);
+					return $this->error(__METHOD__, DbErrors::ERR_EXECUTE->name);
 				}
 			}
 		} catch (PDOException $ex) {
-			return $this->error(__METHOD__, self::ERR_PDO, $ex->getMessage(), $ex);
+			return $this->error(__METHOD__, DbErrors::ERR_PDO->name, $ex->getMessage(), $ex);
 		}
 		return $this->end(__METHOD__, $result);
 	}
@@ -354,24 +361,24 @@ abstract class Dbms {
 		try {
 			$statement = self::$PDO->prepare($sql);
 			if (!$statement) {
-				return $this->error(__METHOD__, self::ERR_STATEMENT, $sql);
+				return $this->error(__METHOD__, DbErrors::ERR_STATEMENT->name, $sql);
 			}
 			if ($params && $types) {
 				$ret = $this->bindValue($statement, $params, $types);
 				if (!$ret) {
-					return $this->error(__METHOD__, self::ERR_BIND, $sql);
+					return $this->error(__METHOD__, DbErrors::ERR_BIND->name, $sql);
 				}
 			}
 			$ret = $statement->execute();
 			if (!$ret) {
-				return $this->error(__METHOD__, self::ERR_EXECUTE);
+				return $this->error(__METHOD__, DbErrors::ERR_EXECUTE->name);
 			}
 			$result = $statement->fetchAll($fetchType);
 			if (!$result) {
-				return $this->error(__METHOD__, self::ERR_FETCH);
+				return $this->error(__METHOD__, DbErrors::ERR_FETCH->name);
 			}
 		} catch (PDOException $ex) {
-			return $this->error(__METHOD__, self::ERR_PDO, $ex);
+			return $this->error(__METHOD__, DbErrors::ERR_PDO->name, $ex);
 		}
 		$this->end(__METHOD__, count($result) . 'rows fetched');
 		return $result;
@@ -501,13 +508,13 @@ abstract class Dbms {
 		return $ret;
 	}
 
-	protected static function sqlType(string $type): int {
+	protected static function sqlType(Types $type): int {
 		switch ($type) {
-			case TypeUtil::NULL:
+			case Types::NULL:
 				return PDO::PARAM_NULL;
-			case TypeUtil::BOOL:
+			case Types::BOOL:
 				return PDO::PARAM_BOOL;
-			case TypeUtil::INT:
+			case Types::INT:
 				return PDO::PARAM_INT;
 		}
 		return PDO::PARAM_STR;
@@ -548,7 +555,7 @@ abstract class Dbms {
 	 */
 	protected function buildCond(array $condList, array $params): string {
 		$condition = '';
-		$andOr = '';
+		$andOr = Op::NOP;
 		foreach ($condList as $cond) {
 			// AND/ORは条件式の構築で使う
 			if ($cond == Op::AND || $cond == Op::OR) {
@@ -562,12 +569,12 @@ abstract class Dbms {
 			$op     = ArrayUtil::get($cond, Query::OP);
 			$param1 = ArrayUtil::get($cond, Query::PARAM1);
 			$param2 = ArrayUtil::get($cond, Query::PARAM2);
-			if (!$op || array_search($op, Op::ALL_OPs) === false) {
+			if (!$op || !($op instanceof Op)) {
 				// 条件式でない配列なら、括弧扱いにして、その中身をビルドする
 				$result = $this->buildCond($cond, $params);
 				if ($result) {
 					// 中身が無ければ無視
-					$condition .= $andOr . '(' . $result . ')';
+					$condition .= ' ' . $andOr->name . ' (' . $result . ')';
 				}
 				continue;
 			}
@@ -583,8 +590,10 @@ abstract class Dbms {
 
 			// 比較演算子にフィールド名、パラメータ名を埋め込み、条件式を構築
 			$embedParam = [$field, $holder1, $holder2];
-			$condition .= $andOr . StrUtil::embed($op, $embedParam);
-			$andOr = '';
+			$opStr = Query::getOpStr($op);
+			$andOrStr = Query::getOpStr($andOr);
+			$condition .= $andOrStr .  StrUtil::embed($opStr, $embedParam);
+			$andOr = Op::NOP;
 		}
 		return $condition;
 	}

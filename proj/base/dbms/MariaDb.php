@@ -43,4 +43,27 @@ class MariaDb extends Dbms {
 		$str = StrUtil::embed(self::DB_CONNECTION_STR, $keyVal);
 		return $str;
 	}
+	/**
+	 * 比較演算子の文字列表現の一覧
+	 * @return array 全ての比較演算子 
+	 */
+	const ALL_OPs = [
+		'NOP' => "",
+		'EQ' => "{0} = {1}",
+		'NE' => "{0} <> {1}",
+		'LT' => "{0} < {1}",
+		'GT' => "{0} > {1}",
+		'LE' => "{0} <= {1}",
+		'GE' => "{0} >= {1}",
+		'IN' => "{0} in ({1})",
+		'BETWEEN' => '{0} between {1} and {2}',
+		'STARTS' => "{0} like '{1}%'",
+		'ENDS' => "{0} like '%{1}'",
+		'CONTAINS' => "{0} like '%{1}%'",
+		'NULL' => "{0} is null",
+		'NOT_NULL' => "{0} is not null",
+		'AND' => " AND ",
+		'OR' => " OR ",
+	];
 }
+Query::setOpList(MariaDb::ALL_OPs);

@@ -5,18 +5,13 @@
  * @example /proj/test/base/util/EnumTest.php 下記のように派生クラスを作る
  * ```php
  * class Status extends Enum {
- *     const ALL = [
- *         'OK'=>1,
- *         'NG'=>-1
- *     ];
+ *     const ALL = ['OK'=>1,'NG'=>-1];
  *     public static Status $OK;
  *     public static Status $NG;
  *     public static function get(int|string $key): Status {
  *         return self::getBase(self::$enums, $key);
  *     }
- *     public static function all(): array {
- *         return self::$enums;
- *     }
+ *     public static function all(): array { return self::$enums; }
  *     public static function init() {
  *         self::$enums = self::initBase(__CLASS__, self::ALL);
  *     }
@@ -25,7 +20,7 @@
  * Status::init();
  * ```
  */
-class Enum {
+class Enums {
 	/**
 	 * コンストラクタ  
 	 * initBase()からのみ呼ばれる
@@ -37,24 +32,9 @@ class Enum {
 		$this->name = $name;
 	}
 	/** @var int 数値 */
-	private int $id = 0;
+	public readonly int $id;
 	/** @var string 名称 */
-	private string $name = '';
-
-	/**
-	 * IDを取得
-	 * @return int ID
-	 */
-	public function id(): int {
-		return $this->id;
-	}
-	/**
-	 * 名称を取得
-	 * @return string 名称
-	 */
-	public function name(): string {
-		return $this->name;
-	}
+	public readonly string $name;
 
 	//// 内部メソッド ////
 
@@ -94,9 +74,9 @@ class Enum {
 	 * ID or 名称でEnumを得る
 	 * @param array $enums [0=>[ID=>Enum, ...], 1:=>[名称=>Enum, ...]]
 	 * @param int|string $idName ID or 名称
-	 * @param ?Enum 見つかったEnum null:見つからなかった
+	 * @param ?Enums 見つかったEnum null:見つからなかった
 	 */
-	protected static function getBase(array $enums, int|string $idName): ?Enum {
+	protected static function getBase(array $enums, int|string $idName): ?Enums {
 		if (is_int($idName)) $idx = 0;
 		if (is_string($idName)) $idx = 1;
 		if (isset($enums[$idx][$idName])) return $enums[$idx][$idName];

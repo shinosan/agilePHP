@@ -1,15 +1,10 @@
 <?php
 require_once __DIR__ . '/_dir.php';
 require_once BASE::UTIL . 'EnumUtil.php';
+require_once BASE::UTIL . 'TypeUtil.php';
 
-enum Types {
-	case BOOL;
-	case INT;
-	case FLOAT;
-	case STRING;
-}
 class TypesUtil extends EnumUtil {
-	public static function register(Types ...$enums) {
+	public static function register(array $enums) {
 		self::registerBase(self::$byIdList, self::$byNameList, ...$enums);
 	}
 	public static function get(int|string $key): Types {
@@ -24,14 +19,14 @@ class TypesUtil extends EnumUtil {
 	private static array $byIdList = [];
 	private static array $byNameList = [];
 }
-TypesUtil::register(Types::BOOL, Types::INT, Types::FLOAT, Types::STRING);
+TypesUtil::register(Types::cases());
 
 enum Sex {
 	case MALE;
 	case FEMALE;
 }
 class SexUtil extends EnumUtil {
-	public static function register(Sex ...$enums) {
+	public static function register(array $enums) {
 		self::registerBase(self::$byIdList, self::$byNameList, ...$enums);
 	}
 	public static function get(int|string $key): Sex {
@@ -46,7 +41,7 @@ class SexUtil extends EnumUtil {
 	private static array $byIdList = [];
 	private static array $byNameList = [];
 }
-SexUtil::register(Sex::MALE, Sex::FEMALE);
+SexUtil::register(Sex::cases());
 
 const LF = "\n";
 

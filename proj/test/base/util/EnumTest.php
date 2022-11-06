@@ -1,8 +1,8 @@
 <?php
 require_once __DIR__ . '/_dir.php';
-require_once BASE::UTIL . 'Enum.php';
+require_once BASE::UTIL . 'Enums.php';
 
-class Status extends Enum {
+class Status extends Enums {
 	const ALL = [
 		'OK' => 1,
 		'WARN' => 0,
@@ -24,7 +24,7 @@ class Status extends Enum {
 }
 Status::init();
 
-class Prefecture extends Enum {
+class Prefecture extends Enums {
 	const ALL = [
 		'北海道',
 		'青森県',
@@ -136,10 +136,10 @@ Prefecture::init();
 
 const LF = "\n";
 function printStatus(Status $status) {
-	echo $status->id() . ':' . $status->name() . LF;
+	echo $status->id . ':' . $status->name . LF;
 }
 function printPrefecture(Prefecture $status) {
-	echo $status->id() . ':' . $status->name() . LF;
+	echo $status->id . ':' . $status->name . LF;
 }
 printStatus(Status::$OK);
 printStatus(Status::$WARN);

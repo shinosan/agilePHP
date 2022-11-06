@@ -35,21 +35,21 @@ class ZipAddress {
 	const flg_reason = 'flg_reason';
 
 	const FIELD_TYPES = [
-		self::org_code => TypeUtil::STRING,
-		self::zip_code_old => TypeUtil::STRING,
-		self::zip_code => TypeUtil::STRING,
-		self::pref_kana => TypeUtil::STRING,
-		self::city_kana => TypeUtil::STRING,
-		self::town_kana => TypeUtil::STRING,
-		self::pref => TypeUtil::STRING,
-		self::city => TypeUtil::STRING,
-		self::town => TypeUtil::STRING,
-		self::flg_zips => TypeUtil::INT,
-		self::flg_koaza => TypeUtil::INT,
-		self::flg_choume => TypeUtil::INT,
-		self::flg_towns => TypeUtil::INT,
-		self::flg_update => TypeUtil::INT,
-		self::flg_reason => TypeUtil::INT,
+		self::org_code => Types::STRING,
+		self::zip_code_old => Types::STRING,
+		self::zip_code => Types::STRING,
+		self::pref_kana => Types::STRING,
+		self::city_kana => Types::STRING,
+		self::town_kana => Types::STRING,
+		self::pref => Types::STRING,
+		self::city => Types::STRING,
+		self::town => Types::STRING,
+		self::flg_zips => Types::INT,
+		self::flg_koaza => Types::INT,
+		self::flg_choume => Types::INT,
+		self::flg_towns => Types::INT,
+		self::flg_update => Types::INT,
+		self::flg_reason => Types::INT,
 	];
 }
 
@@ -94,7 +94,12 @@ $params = [
 	ZA::city => '千代田区',
 	ZA::flg_choume => 1,
 ];
-$query = new Query('t_zip_address_org', ZA::FIELD_TYPES, Q_ZIP_ADDR, [ZA::org_code, ZA::zip_code]);
+$query = new Query(
+	't_zip_address_org',
+	ZA::FIELD_TYPES,
+	Q_ZIP_ADDR,
+	[ZA::org_code, ZA::zip_code]
+);
 $sql = $dbms->makeSelect($query, $params, false);
 echo $sql . PHP_EOL;
 

@@ -1,74 +1,71 @@
 <?php
 require_once __DIR__ . '/_dir.php';
-require_once BASE::UTIL . 'ArrayUtil';
+require_once BASE::UTIL . 'ArrayUtil.php';
 
 /**
  * DBMS上でnullとなることを明示する
  */
-class DBNull {
-	/**
-	 * 自分自身のシングルトンを返す
-	 */
-	public static function self(): DBNull {
-		if (self::$self === null) {
-			self::$self = new DBNull();
-		}
-		return self::$self;
-	}
-	private static ?DBNull $self = null;
-
-	/**
-	 * インスタンス化禁止
-	 */
-	private function __construct() {
-	}
+enum DBNull {
+	case null;
 }
 
 /**
- * 条件演算子
+ * 条件演算子の列挙体
  */
-class Op {
+enum Op {
+	/** @var string No Operation 空白 */
+	case NOP;
 	/** @var string EQual 等しい */
-	const EQ = "{0} = {1}";
+	case EQ;
 	/** @var string Not Equal 等しくない */
-	const NE = "{0} <> {1}";
+	case NE;
 	/** @var string Littler Than ～より小さい */
-	const LT = "{0} < {1}";
+	case LT;
 	/** @var string Greater Than ～より大きい */
-	const GT = "{0} > {1}";
+	case GT;
 	/** @var string Littler Equel ～以下 */
-	const LE = "{0} <= {1}";
+	case LE;
 	/** @var string Greater Equel ～以上 */
-	const GE = "{0} >= {1}";
+	case GE;
 	/** @var string IN リストにある */
-	const IN = "{0} in ({1})";
+	case IN;
 	/** @var string Between AとBの間 */
-	const BETWEEN = '{0} between {1} and {2}';
+	case BETWEEN;
 	/** @var string Starts with ～で始まる */
-	const STARTS = "{0} like '{1}%'";
+	case STARTS;
 	/** @var string Ends with ～で終わる */
-	const ENDS = "{0} like '%{1}'";
+	case ENDS;
 	/** @var string Contains ～を含む */
-	const CONTAINS = "{0} like '%{1}%'";
+	case CONTAINS;
 	/** @var string is null NULLである */
-	const NULL = "{0} is null";
+	case NULL;
 	/** @var string is not null NULLでない */
-	const NOTNULL = "{0} is not null";
+	case NOT_NULL;
 	/** @var string AND 両者が真となる */
-	const AND = " AND ";
+	case AND;
 	/** @var string OR どちらかが真となる */
-	const OR = " OR ";
-
-	/** @var array 全ての比較演算子 */
-	const ALL_OPs = [self::EQ, self::NE, self::LT, self::GT, self::LE, self::GE, self::IN, self::BETWEEN, self::STARTS, self::ENDS, self::CONTAINS, self::NULL, self::NOTNULL];
+	case OR;
 
 	/**
 	 * パラメータが必要な比較演算子かどうか
-	 * @param string $op 比較演算子
+	 * @param Op $op 比較演算子
 	 * @return bool true:パラメータが必要
 	 */
-	public static function hasParam(string $op): bool {
-		return ($op !== self::NULL && $op !== self::NOTNULL);
+	public static function hasParam(Op $op): bool {
+		switch ($op) {
+			case self::NULL:
+				return false;
+			case self::NOT_NULL:
+				return false;
+			case self::AND:
+				return false;
+			case self::OR:
+				return false;
+			case self::NOP:
+				return false;
+			default:
+				return true;
+		}
 	}
 }
 
@@ -135,7 +132,7 @@ class Query {
 		foreach ($queryDefs as $query) {
 			if (is_array($query)) {
 				$target = ArrayUtil::get($query, self::OP);
-				if ($target && in_array($target, OP::ALL_OPs)) {;
+				if ($target instanceof Op) {;
 					if ($target === $op) {
 						$query[self::OP] = $op;
 						if (--$count <= 0) break;
@@ -147,4 +144,21 @@ class Query {
 		}
 		return $queryDefs;
 	}
+
+	/**
+	 * 比較演算子の一覧をセットする
+	 * @param array $opList 比較演算子の一覧
+	 */
+	public static function setOpList(array $opList) {
+		self::$opList = $opList;
+	}
+	/**
+	 * 比較演算子の文字列表現を得る
+	 * @param Op $op 比較演算子
+	 * @return string 文字列表現
+	 */
+	public static function getOpStr(Op $op): string {
+		return ($op == Op::NOP) ? '' : self::$opList[$op->name];
+	}
+	private static array $opList;
 }
