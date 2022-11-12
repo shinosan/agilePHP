@@ -29,6 +29,8 @@ enum Op {
 	case GE;
 	/** @var string IN リストにある */
 	case IN;
+	/** @var string Not IN リストにない */
+	case NOT_IN;
 	/** @var string Between AとBの間 */
 	case BETWEEN;
 	/** @var string Starts with ～で始まる */

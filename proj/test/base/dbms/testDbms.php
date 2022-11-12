@@ -1,5 +1,9 @@
 <?php
 require_once __DIR__ . '/_dir.php';
+require_once BASE::UTIL . 'StopWatch.php';
+
+$sw = StopWatch::start(); // 計測開始
+
 require_once BASE::DBMS . 'MariaDb.php';
 
 class ZipAddress {
@@ -90,9 +94,10 @@ const Q_ZIP_ADDR = [
 $dbms = MariaDb::self();
 
 $params = [
-	ZA::pref => '東京都',
-	ZA::city => '千代田区',
-	ZA::flg_choume => 1,
+	ZA::zip_code => '1020073',
+	// ZA::pref => '東京都',
+	// ZA::city => '千代田区',
+	// ZA::flg_choume => 1,
 ];
 $query = new Query(
 	't_zip_address_org',
@@ -100,21 +105,30 @@ $query = new Query(
 	Q_ZIP_ADDR,
 	[ZA::org_code, ZA::zip_code]
 );
-$sql = $dbms->makeSelect($query, $params, false);
-echo $sql . PHP_EOL;
+// $sql = $dbms->makeSelect($query, $params, false);
+// echo $sql . PHP_EOL;
 
 $dbms->connect();
 $dbms->beginTransaction();
 $rows = $dbms->select($query, $params);
-if (is_array($rows)) {
-	foreach ($rows as $row) {
-		foreach ($row as $key => $value) {
-			$str = StrUtil::toString($value);
-			echo $key . ':' . $str . PHP_EOL;
-		}
-	}
-} else {
-	echo $rows;
-}
 $dbms->commit();
 $dbms->disconnect();
+$time = $sw->stop();
+
+display($rows);
+$count = count($rows);
+
+echo $count . '件　処理時間: ' . $time . PHP_EOL; // 計測終了
+
+function display(array|int $rows) {
+	if (is_array($rows)) {
+		foreach ($rows as $row) {
+			foreach ($row as $key => $value) {
+				$str = StrUtil::toString($value);
+				echo $key . ':' . $str . PHP_EOL;
+			}
+		}
+	} else {
+		echo $rows;
+	}
+}
