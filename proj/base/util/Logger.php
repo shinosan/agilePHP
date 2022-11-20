@@ -39,7 +39,7 @@ trait Logger {
 	 * @param mixed ...$params パラメータ
 	 */
 	protected function start(string $methodName, mixed ...$params) {
-		$this->trace(1, $methodName, 'start', ...$params);
+		$this->trace(Results::TRACE, $methodName, 'start', ...$params);
 	}
 
 	/**
@@ -58,9 +58,9 @@ trait Logger {
 		if ($count > $maxArray) {
 			$reduced = array_slice($results, 0, $maxArray);
 			array_push($reduced, '... count=' . $count);
-			$this->trace(1, $methodName, 'end', $reduced);
+			$this->trace(Results::TRACE, $methodName, 'end', $reduced);
 		} else {
-			$this->trace(1, $methodName, 'end', $results);
+			$this->trace(Results::TRACE, $methodName, 'end', $results);
 		}
 		return $results;
 	}
@@ -73,7 +73,7 @@ trait Logger {
 	 * @return mixed パラメータの１件目(通常はエラーコード)
 	 */
 	public function warning(string $methodName, string $happend, mixed ...$params): mixed {
-		$this->trace(0, $methodName, $happend, ...$params);
+		$this->trace(Results::WARNING, $methodName, $happend, ...$params);
 		return ArrayUtil::get($params, 0, 'no error code');
 	}
 
@@ -85,7 +85,7 @@ trait Logger {
 	 * @return mixed パラメータの１件目(通常はエラーコード)
 	 */
 	public function error(string $methodName, string $happend,  mixed ...$params): mixed {
-		$this->trace(-1, $methodName, $happend, ...$params);
+		$this->trace(Results::ERROR, $methodName, $happend, ...$params);
 		return ArrayUtil::get($params, 0, 'no error code');
 	}
 

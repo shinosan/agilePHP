@@ -62,8 +62,17 @@ class ConfigUtil {
 			// ファイル名が指定されなければ、デフォルトを読み込む
 			$fileName = self::CONFIG_INI;
 		}
-		$keyVals = parse_ini_file(BASE::CONF . $fileName, true, INI_SCANNER_TYPED);
+		$keyVals = parse_ini_file(self::$basePath . $fileName, true, INI_SCANNER_TYPED);
 		self::$keyVals[$fileName] = $keyVals;
 		return $keyVals;
 	}
+
+	/**
+	 * 設定ファイルのベース・パスをセットする
+	 * @param string $val セットする値
+	 */
+	public static function setBasePath(string $val) {
+		self::$basePath = $val;
+	}
+	private static string $basePath = BASE::CONF;
 }

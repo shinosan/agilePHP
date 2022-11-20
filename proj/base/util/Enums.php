@@ -32,9 +32,9 @@ class Enums {
 		$this->name = $name;
 	}
 	/** @var int 数値 */
-	public readonly int $id;
+	protected int $id;
 	/** @var string 名称 */
-	public readonly string $name;
+	protected string $name;
 
 	//// 内部メソッド ////
 

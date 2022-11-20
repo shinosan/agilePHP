@@ -16,11 +16,11 @@ class User extends Model {
 		return self::fields;
 	}
 
-	const userId = ['user_id', 'ユーザID', TypeUtil::STRING];
-	const name = ['name', '氏名', TypeUtil::STRING];
-	const addressId = ['address_id', '住所ID', TypeUtil::INT];
-	const building = ['building', '建物', TypeUtil::STRING];
-	const address = ['address', '住所', TypeUtil::MODEL, 'addressId', 'Address'];
+	const userId    = ['user_id',    'ユーザID', Types::STRING];
+	const name      = ['name',       '氏名', Types::STRING];
+	const addressId = ['address_id', '住所ID', Types::INT];
+	const building  = ['building',   '建物', Types::STRING];
+	const address   = ['address',    '住所', Types::MODEL, 'addressId', 'Address'];
 
 	const fields = [
 		Model::pkey,
@@ -116,10 +116,10 @@ class Address extends Model {
 		return __CLASS__;
 	}
 
-	const zipCode = ['zip_code', '郵便番号', TypeUtil::STRING];
-	const prefecture = ['prefecture', '都道府県', TypeUtil::STRING];
-	const city = ['city', '市町村', TypeUtil::STRING];
-	const street = ['street', '街区', TypeUtil::STRING];
+	const zipCode = ['zip_code', '郵便番号', Types::STRING];
+	const prefecture = ['prefecture', '都道府県', Types::STRING];
+	const city = ['city', '市町村', Types::STRING];
+	const street = ['street', '街区', Types::STRING];
 
 	const fields = [
 		Model::pkey,

@@ -15,7 +15,7 @@ class StrUtil {
 	}
 
 	/**
-	 * テンプレート文字列に値を埋め込む
+	 * テンプレート文字列に複数の値を埋め込む
 	 * @param string $template 値を埋め込むテンプレート。 例: '文字列の中の{キー}を値に置き換える'
 	 * @param array $keyVals [キー=>値, ...]の配列
 	 * @param string $parenthesis 括弧(省略='{}')

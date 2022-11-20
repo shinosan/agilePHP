@@ -1,4 +1,7 @@
 <?php
+
+namespace app0;
+
 require_once __DIR__ . '/../../root.php';
 require_once ROOT . 'base/dir.php';
 class APP {

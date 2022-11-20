@@ -38,7 +38,8 @@ enum DbErrors: int {
 
 /**
  * DBMSの抽象基底クラス  
- * 連想配列ベースでデータの読み書き検索を行う
+ * 連想配列ベースでデータの読み書き検索を行う  
+ * TODO:呼ばれたAPP毎に違うDBにアクセスする仕組みが必要 -> DB名だけ個別のdbconfig.iniから読み取る
  */
 abstract class Dbms {
 	use Logger;
