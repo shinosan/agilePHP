@@ -56,6 +56,7 @@ class MariaDb extends Dbms {
 		'LE' => "{0} <= {1}",
 		'GE' => "{0} >= {1}",
 		'IN' => "{0} in ({1})",
+		'NOT_IN' => "{0} not in ({1})",
 		'BETWEEN' => '{0} between {1} and {2}',
 		'STARTS' => "{0} like '{1}%'",
 		'ENDS' => "{0} like '%{1}'",

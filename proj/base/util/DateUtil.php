@@ -441,6 +441,20 @@ final class DateUtil {
 
 		return $result;
 	}
+
+	/**
+	 * 左辺と右辺の日時の間隔を取り、書式に従って文字列化、必要なら整数値で返す。
+	 * @param DateTime $lhs 左辺
+	 * @param DateTime $rhs 右辺
+	 * @param string $fmt 書式 省略=総日数
+	 * @param bool $toInt 結果を整数に変換 省略=変換する
+	 * @return int|string 間隔を書式で変換した数値or文字列
+	 */
+	public static function diff(DateTime $lhs, DateTime $rhs, string $fmt = DateFmt::DIFF_DAYS, bool $toInt = true): int|string {
+		$interval = $lhs->diff($rhs);
+		$str = $interval->format($fmt);
+		return $toInt ? intval($str) : $str;
+	}
 }
 /**
  * 年号の情報
@@ -521,4 +535,63 @@ class EraName {
 		$year   = $year0 - intval($this->start()->format('Y')) + 1;
 		return $nengo . $year;
 	}
+}
+
+/**
+ * 日時書式
+ */
+class DateFmt {
+	//// 以下はDateUtil::toString()で使用する書式
+
+	/** インスタンス化を禁止 */
+	private function __construct() {
+	}
+
+	/** @var string 書式 yyyy-mm-dd HH:mm:ss.uuuuuu */
+	const YMDHISU = 'Y-m-d H:i:s.u';
+	/** @var string 書式 yyyy-mm-ddTHH:mm:ss.uuuuuu */
+	const YMDHISU_T = 'Y-m-dTH:i:s.u';
+
+	/** @var string 書式 yyyy-mm-dd HH:mm:ss */
+	const YMDHIS = 'Y-m-d H:i:s';
+	/** @var string 書式 yyyy-mm-ddTHH:mm:ss */
+	const YMDHIS_T = 'Y-m-dTH:i:s';
+
+	/** @var string 書式 yyyy-mm-dd */
+	const YMD = 'Y-m-d';
+
+	/** @var string 書式 yyyymmddHHmmssuuuuuu */
+	const TIMESTAMP = 'YmdHisu';
+
+	/** @var string 書式 yyyymmddHHmmss */
+	const LONG = 'YmdHis';
+
+	/** @var string 書式 yyyymmdd */
+	const SHORT = 'Ymd';
+
+	//// 以下はDateUtil::diff()で使用する書式
+
+	/** @var string 差分の総日数 */
+	const DIFF_DAYS = '%a';
+
+	/** @var string 差分の年 */
+	const DIFF_YEAR = '%y';
+
+	/** @var string 差分の月 */
+	const DIFF_MONTH = '%M';
+
+	/** @var string 差分の日 */
+	const DIFF_DAY = '%M';
+
+	/** @var string 差分の時 */
+	const DIFF_HOUR = '%H';
+
+	/** @var string 差分の分 */
+	const DIFF_MINUTE = '%I';
+
+	/** @var string 差分の秒 */
+	const DIFF_SECOND = '%S';
+
+	/** @var string 差分のマイクロ秒 */
+	const DIFF_MICRO = '%F';
 }
